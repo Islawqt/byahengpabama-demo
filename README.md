@@ -2,6 +2,8 @@
 
 **Live demo:** https://islawqt.github.io/byahengpabama-demo/
 
+**Evaluation survey:** https://islawqt.github.io/byahengpabama-demo/survey/
+
 This is a browser-only demo of **ByahengPabama**, a capstone project at STI College Valencia: a bus tracking and fare matrix system for Pabama Corporation's CDO Agora Terminal ↔ Kibawe route.
 
 > This is a student project with sample data. It is **not** an official Pabama Corporation website.
@@ -47,3 +49,7 @@ The real system is a Laravel app with a MySQL database. GitHub Pages can only ho
   - `sim.js`: simulation and tracking rules.
   - `pages-*.js`: the pages.
   - `actions.js`: the forms.
+
+## Evaluation survey
+
+`survey/` is the evaluation survey from Appendix E of the paper (ISO/IEC 25010, System Usability Scale, and open-ended questions). Each role answers only its parts. Responses are sent to a Google Apps Script web app (`survey/apps-script.gs`), which saves each one as a row in a Google Sheet; the Sheet's Summary tab computes the weighted means and SUS scores. The script's URL goes in `survey/config.js`.

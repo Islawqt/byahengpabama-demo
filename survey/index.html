@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" data-theme-default="system">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ByahengPabama Evaluation Survey</title>
+<meta name="description" content="Evaluation survey for ByahengPabama, a capstone project at STI College Valencia.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F4F3EF">
+<link rel="icon" href="../favicon.ico" sizes="48x48">
+<link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+<script>
+(function (d) {
+    var r = d.documentElement, p, t, m;
+    try { p = localStorage.getItem('bp-theme'); } catch (e) {}
+    if (p !== 'light' && p !== 'dark' && p !== 'system') p = 'system';
+    t = p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : p;
+    r.setAttribute('data-theme', t);
+    r.style.colorScheme = t;
+    m = d.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', t === 'dark' ? '#121212' : '#F4F3EF');
+})(document);
+</script>
+<link rel="stylesheet" href="../assets/app.css">
+<link rel="stylesheet" href="survey.css">
+<script type="module" src="survey.js"></script>
+</head>
+<body>
+<div class="page">
+    <header class="sv-top">
+        <div class="sv-wrap sv-top-inner">
+            <span class="logo-tile"><img src="../images/pabama-logo-small.svg" alt="Pabama" width="42" height="36"></span>
+            <div>
+                <p class="sv-brand">ByahengPabama</p>
+                <p class="sv-sub">Evaluation survey</p>
+            </div>
+        </div>
+    </header>
+    <main id="app" class="sv-wrap sv-main" aria-live="polite">
+        <noscript><div class="card">Please turn on JavaScript to answer this survey.</div></noscript>
+    </main>
+    <footer class="sv-wrap sv-foot">
+        A capstone project of BSIT students at STI College Valencia. Not an official Pabama Corporation website.
+    </footer>
+</div>
+</body>
+</html>
