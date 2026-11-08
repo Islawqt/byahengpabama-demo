@@ -1,0 +1,110 @@
+/* Line Inspector page styles, copied from the app (resources/views/inspector.blade.php). */
+  :root {
+    --bg: #121212;
+    --panel: #1C1C1C;
+    --ink: #F2F2F0;
+    --ink-soft: #A3A39D;
+    --primary: #E53E3E;
+    --primary-dark: #C53030;
+    --green: #34A570;
+    --border: #333331;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+
+  header { padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  header .role { font-size: 11px; color: var(--primary); font-weight: 600; }
+  header .brand { font-weight: 700; font-size: 17px; margin-top: 2px; }
+
+  .field-group { padding: 20px 20px 0; }
+  .field-label { font-size: 12px; color: var(--ink-soft); margin-bottom: 8px; display: block; }
+
+  .select-big {
+    width: 100%;
+    padding: 16px;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 600;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--panel);
+    color: var(--ink);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%23A3A39D' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+  }
+
+  .checkpoint-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .checkpoint-btn {
+    padding: 20px 12px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--panel);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .checkpoint-btn.selected {
+    border-color: var(--primary);
+    background: rgba(229, 62, 62, 0.12);
+    color: var(--primary);
+  }
+
+  .confirm-btn {
+    margin: 28px 20px 12px;
+    padding: 20px;
+    border: none;
+    border-radius: 12px;
+    background: var(--primary);
+    color: white;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .log-section { padding: 8px 20px 32px; flex: 1; }
+  .log-heading { font-size: 12px; color: var(--ink-soft); margin-bottom: 10px; }
+  .log-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .log-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .log-text { flex: 1; }
+  .log-text .log-bus { font-weight: 600; }
+  .log-time { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-soft); }
+  .checkpoint-btn { cursor: pointer; display: block; }
+  .checkpoint-grid input { position: absolute; opacity: 0; pointer-events: none; }
+  .checkpoint-grid input:checked + .checkpoint-btn {
+    border-color: var(--primary);
+    background: rgba(229, 62, 62, 0.12);
+    color: var(--primary);
+  }
+  .checkpoint-grid input:focus-visible + .checkpoint-btn { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .confirm-btn { cursor: pointer; }
+  .confirm-btn:active { background: var(--primary-dark); }
+  header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  header .who { font-size: 12px; color: var(--ink-soft); text-align: right; }
+  header .who a, header .who button { color: var(--ink-soft); background: none; border: none; font: inherit; text-decoration: underline; cursor: pointer; }
+  .flash { margin: 16px 20px 0; padding: 12px 14px; border-radius: 10px; font-size: 14px; font-weight: 600; background: rgba(52, 165, 112, 0.15); color: var(--green); }
+  .error { margin-top: 8px; font-size: 13px; color: var(--primary); }
+  .log-empty { font-size: 13px; color: var(--ink-soft); padding: 12px 0; }

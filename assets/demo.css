@@ -1,0 +1,45 @@
+/* Only for this demo: the strip that says it's a demo, and the demo account list. */
+.demo-banner {
+    background: #FFF4D6;
+    color: #5C3B00;
+    border-bottom: 1px solid #F0D89A;
+    font: 500 13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.demo-banner-inner {
+    max-width: 1680px;
+    margin: 0 auto;
+    padding: 6px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+}
+.demo-banner .badge { flex: none; }
+.demo-banner-text { flex: 1 1 260px; }
+.demo-banner-reset {
+    flex: none;
+    border: 1px solid #D9B85E;
+    background: #FFFDF6;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 2px 10px;
+    cursor: pointer;
+}
+.demo-banner-reset:hover { background: #fff; }
+:root[data-theme="dark"] .demo-banner { background: #2E2614; color: #F3DFA8; border-color: #4D3F1C; }
+:root[data-theme="dark"] .demo-banner-reset { background: #1F1A0E; border-color: #6B5726; }
+.inspector-page .demo-banner { background: #2E2614; color: #F3DFA8; border-color: #4D3F1C; }
+.inspector-page .demo-banner .badge { background: #FFEFCF; color: #7A4E00; padding: 1px 8px; border-radius: 999px; font-size: 12px; }
+.inspector-page .demo-banner-reset { background: #1F1A0E; border-color: #6B5726; }
+
+/* Demo accounts on the login page */
+.demo-accounts { margin-top: 20px; font-size: 14px; }
+.demo-accounts table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.demo-accounts td { padding: 6px 0; border-top: 1px solid var(--border, #ddd); vertical-align: top; }
+.demo-accounts button { font: inherit; font-weight: 600; color: var(--brand-text, #B00000); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+
+/* Analytics charts */
+.chart-bars rect { fill: var(--brand, #C00000); }
+.chart-bars text { font: 11px system-ui, sans-serif; }

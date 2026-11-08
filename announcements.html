@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" data-theme-default="system">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Announcements · ByahengPabama</title>
+<meta name="description" content="Advisories, schedule changes and news from Pabama.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F4F3EF">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<script>
+(function (d) {
+    var r = d.documentElement, p, t, m;
+    try { p = localStorage.getItem('bp-theme'); } catch (e) {}
+    if (p !== 'light' && p !== 'dark' && p !== 'system') p = r.getAttribute('data-theme-default') || 'system';
+    t = p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : p;
+    r.setAttribute('data-theme-pref', p);
+    r.setAttribute('data-theme', t);
+    r.style.colorScheme = t;
+    r.className += ' js';
+    m = d.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', t === 'dark' ? '#121212' : '#F4F3EF');
+})(document);
+</script>
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/demo.css">
+<script type="module" src="assets/js/main.js"></script>
+</head>
+<body data-page="announcements">
+<noscript><p style="padding:24px;font-family:sans-serif">This demo needs JavaScript turned on.</p></noscript>
+</body>
+</html>
