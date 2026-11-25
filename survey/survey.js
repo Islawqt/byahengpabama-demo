@@ -2,8 +2,8 @@
 // app (see apps-script.gs), which adds it as a row in the Google Sheet. If
 // sending fails, the response waits in this browser and is sent again the
 // next time the page opens.
-import { ENDPOINT } from './config.js?v=4';
-import { LANGS, ROLES, AGES, MINOR, STATUSES, PARTS, LINKS, ACCOUNTS, CATEGORIES, T } from './questions.js?v=4';
+import { ENDPOINT } from './config.js?v=5';
+import { LANGS, ROLES, AGES, MINOR, STATUSES, RIDES, PARTS, LINKS, ACCOUNTS, CATEGORIES, T } from './questions.js?v=5';
 
 const app = document.getElementById('app');
 const QUEUE = 'bp-survey-queue';
@@ -96,6 +96,10 @@ function form() {
     <h2>${esc(t.statusTitle)}</h2>
     <fieldset class="sv-item" id="item-status"><legend class="visually-hidden">${esc(t.statusTitle)}</legend>
     <div class="sv-ages sv-status">${choices('status', STATUSES.map((v, i) => [v, t.statuses[i]]))}</div>
+    </fieldset>
+    <h2 class="sv-q2">${esc(t.rideTitle)}</h2>
+    <fieldset class="sv-item" id="item-ride"><legend class="visually-hidden">${esc(t.rideTitle)}</legend>
+    <div class="sv-ages sv-status">${choices('ride', RIDES.map((v, i) => [v, t.rides[i]]))}</div>
     </fieldset>
 </section>
 
@@ -198,6 +202,7 @@ function collect(f) {
         age: data.get('age'),
         role,
         status: role === 'Passenger' ? data.get('status') : '',
+        ride: role === 'Passenger' ? data.get('ride') : '',
         consent: f.consent.checked,
         iso: parts.iso ? list('iso', EN.iso.length) : [],
         sus: parts.sus ? list('sus', EN.sus.length) : [],
@@ -211,6 +216,7 @@ function missing(a) {
     if (!a.age) out.push(['item-age', t.fixAge]);
     if (!a.role) out.push(['item-role', t.fixRole]);
     if (a.role === 'Passenger' && !a.status) out.push(['item-status', t.fixStatus]);
+    if (a.role === 'Passenger' && !a.ride) out.push(['item-ride', t.fixRide]);
     a.iso.forEach((v, i) => { if (!v) out.push([`item-iso${i + 1}`, fill(t.fixIso, { n: i + 1 })]); });
     a.sus.forEach((v, i) => { if (!v) out.push([`item-sus${i + 1}`, fill(t.fixSus, { n: i + 1 })]); });
     return out;

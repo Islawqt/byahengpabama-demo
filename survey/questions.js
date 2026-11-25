@@ -12,6 +12,7 @@ export const AGES = ['18–24', '25–34', '35–44', '45–59', '60 and above']
 export const MINOR = 'Below 18';
 // Asked of passengers only (staff and IT practitioners are already working).
 export const STATUSES = ['Student', 'Employed', 'Self-employed', 'Unemployed', 'Retired', 'Other'];
+export const RIDES = ['Often', 'A few times', 'Not yet'];
 
 // Which parts each role answers (Chapter 3).
 export const PARTS = {
@@ -61,6 +62,9 @@ export const T = {
         statusTitle: 'What is your current status?',
         statuses: ['Student', 'Employed (regular worker)', 'Self-employed or own business', 'Unemployed', 'Retired', 'Other'],
         fixStatus: 'Choose your current status.',
+        rideTitle: 'Have you ridden a Pabama bus?',
+        rides: ['Yes, often', 'Yes, a few times', 'Not yet'],
+        fixRide: 'Say if you have ridden a Pabama bus.',
         roles: {
             Passenger: ['Passenger', 'You ride Pabama buses.'],
             'Line Inspector': ['Line Inspector', 'You report buses at a checkpoint.'],
@@ -158,6 +162,9 @@ export const T = {
         statusTitle: 'Ano ang kasalukuyan mong katayuan?',
         statuses: ['Estudyante', 'May trabaho (empleyado)', 'Sariling negosyo o self-employed', 'Walang trabaho', 'Retirado', 'Iba pa'],
         fixStatus: 'Piliin ang iyong kasalukuyang katayuan.',
+        rideTitle: 'Nakasakay ka na ba sa bus ng Pabama?',
+        rides: ['Oo, madalas', 'Oo, ilang beses', 'Hindi pa'],
+        fixRide: 'Sabihin kung nakasakay ka na sa bus ng Pabama.',
         roles: {
             Passenger: ['Pasahero', 'Sumasakay ka sa mga bus ng Pabama.'],
             'Line Inspector': ['Line Inspector', 'Nagre-report ka ng mga bus sa checkpoint.'],
@@ -255,6 +262,9 @@ export const T = {
         statusTitle: 'Unsa ang imong kahimtang karon?',
         statuses: ['Estudyante', 'Naay trabaho (empleyado)', 'Kaugalingong negosyo o self-employed', 'Walay trabaho', 'Retirado', 'Uban pa'],
         fixStatus: 'Pilia ang imong kahimtang karon.',
+        rideTitle: 'Nakasakay na ba ka sa bus sa Pabama?',
+        rides: ['Oo, kanunay', 'Oo, pipila ka higayon', 'Wala pa'],
+        fixRide: 'Isulti kung nakasakay na ka sa bus sa Pabama.',
         roles: {
             Passenger: ['Pasahero', 'Musakay ka sa mga bus sa Pabama.'],
             'Line Inspector': ['Line Inspector', 'Nag-report ka sa mga bus sa checkpoint.'],
