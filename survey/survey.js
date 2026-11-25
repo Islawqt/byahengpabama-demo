@@ -2,8 +2,8 @@
 // app (see apps-script.gs), which adds it as a row in the Google Sheet. If
 // sending fails, the response waits in this browser and is sent again the
 // next time the page opens.
-import { ENDPOINT } from './config.js';
-import { LANGS, ROLES, AGES, MINOR, PARTS, LINKS, ACCOUNTS, CATEGORIES, T } from './questions.js';
+import { ENDPOINT } from './config.js?v=3';
+import { LANGS, ROLES, AGES, MINOR, PARTS, LINKS, ACCOUNTS, CATEGORIES, T } from './questions.js?v=3';
 
 const app = document.getElementById('app');
 const QUEUE = 'bp-survey-queue';
