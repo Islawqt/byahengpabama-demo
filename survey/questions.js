@@ -3,7 +3,7 @@
 
 export const LANGS = [
     { code: 'en', label: 'English' },
-    { code: 'fil', label: 'Filipino' },
+    { code: 'fil', label: 'Tagalog' },
     { code: 'ceb', label: 'Bisaya' },
 ];
 
@@ -87,7 +87,7 @@ export const T = {
         rateNote: 'Rate each statement from 1 (strongly disagree) to 5 (strongly agree).',
         susNote: 'Answer every statement; if you are unsure, choose 3.',
         openTitle: 'Your comments',
-        openNote: 'Optional. You may answer in English, Filipino, or Bisaya.',
+        openNote: 'Optional. You may answer in English, Tagalog, or Bisaya.',
         submit: 'Submit my answers',
         sending: 'Sending…',
         rejected: 'Your answers were not saved. Please tell the proponents.',
@@ -190,7 +190,7 @@ export const T = {
         rateNote: 'Bigyan ng marka ang bawat pahayag mula 1 (lubos na hindi sang-ayon) hanggang 5 (lubos na sang-ayon).',
         susNote: 'Sagutin ang lahat ng pahayag; kung hindi ka sigurado, piliin ang 3.',
         openTitle: 'Iyong mga puna',
-        openNote: 'Hindi sapilitan. Maaari kang sumagot sa English, Filipino, o Bisaya.',
+        openNote: 'Hindi sapilitan. Maaari kang sumagot sa English, Tagalog, o Bisaya.',
         submit: 'Ipasa ang aking mga sagot',
         sending: 'Ipinapasa…',
         rejected: 'Hindi na-save ang iyong mga sagot. Pakisabi sa mga proponent.',
@@ -293,7 +293,7 @@ export const T = {
         rateNote: 'Hatagi og marka ang matag pahayag gikan sa 1 (dili gyud uyon) hangtod 5 (uyon gyud).',
         susNote: 'Tubaga ang tanang pahayag; kung dili ka sigurado, pilia ang 3.',
         openTitle: 'Imong mga komento',
-        openNote: 'Dili pinugos. Mahimo kang motubag sa English, Filipino, o Bisaya.',
+        openNote: 'Dili pinugos. Mahimo kang motubag sa English, Tagalog, o Bisaya.',
         submit: 'Ipadala ang akong mga tubag',
         sending: 'Gipadala…',
         rejected: 'Wala na-save ang imong mga tubag. Palihug sultihi ang mga proponent.',
