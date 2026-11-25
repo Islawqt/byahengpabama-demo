@@ -2,8 +2,8 @@
 // app (see apps-script.gs), which adds it as a row in the Google Sheet. If
 // sending fails, the response waits in this browser and is sent again the
 // next time the page opens.
-import { ENDPOINT } from './config.js?v=9';
-import { LANGS, ROLES, AGES, MINOR, STATUSES, RIDES, PARTS, LINKS, ACCOUNTS, CATEGORIES, T } from './questions.js?v=9';
+import { ENDPOINT } from './config.js?v=10';
+import { LANGS, ROLES, AGES, MINOR, STATUSES, RIDES, PARTS, LINKS, ACCOUNTS, CATEGORIES, T } from './questions.js?v=10';
 
 const app = document.getElementById('app');
 const QUEUE = 'bp-survey-queue';
@@ -200,7 +200,7 @@ function showRole(role) {
     document.getElementById('part-iso').classList.toggle('sv-hidden', !parts.iso);
     document.getElementById('part-sus').classList.toggle('sv-hidden', !parts.sus);
     document.getElementById('part-status').classList.toggle('sv-hidden', role !== 'Passenger');
-    // Optional questions about the chat helper, asked of passengers only.
+    // Optional questions about the chatbot, asked of passengers only.
     document.getElementById('part-helper').classList.toggle('sv-hidden', role !== 'Passenger');
     numberSteps();
     updateProgress();
