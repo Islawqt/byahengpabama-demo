@@ -3,16 +3,22 @@
 // sending fails, the response waits in this browser and is sent again the
 // next time the page opens.
 import { ENDPOINT } from './config.js';
-import { ROLES, PARTS, TASKS, ISO, SUS, OPEN, SCALE } from './questions.js';
+import { LANGS, ROLES, AGES, MINOR, PARTS, LINKS, ACCOUNTS, CATEGORIES, T } from './questions.js';
 
 const app = document.getElementById('app');
 const QUEUE = 'bp-survey-queue';
 const DONE = 'bp-survey-done';
+const LANG = 'bp-survey-lang';
+const EN = T.en;
 
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c]));
+const fill = (s, vars) => s.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
 const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* private mode */ } };
 const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`);
+
+let lang = LANGS.some((l) => l.code === read(LANG, '')) ? read(LANG, 'en') : 'en';
+let t = T[lang];
 
 // ---------------------------------------------------------------- sending
 
@@ -34,98 +40,123 @@ async function flushQueue() {
 
 // ---------------------------------------------------------------- drawing
 
-const scale = (name) => `<div class="sv-scale">${SCALE.map((label, i) => `<label><input class="choice-input" type="radio" name="${name}" value="${i + 1}"><span class="choice">${i + 1}<small>${esc(label)}</small></span></label>`).join('')}</div>
-<div class="sv-ends" aria-hidden="true"><span>1 Strongly disagree</span><span>5 Strongly agree</span></div>`;
+// For Filipino and Bisaya, the English statement is shown under the translation.
+const original = (text) => (lang === 'en' ? '' : `<span class="sv-orig" lang="en">${esc(text)}</span>`);
 
-const statement = (name, n, text, category = '') => `<fieldset class="sv-item" id="item-${name}">
-<legend>${category ? `<span class="sv-cat">${esc(category)}</span>` : ''}${n}. ${esc(text)}</legend>${scale(name)}</fieldset>`;
+const scale = (name) => `<div class="sv-scale">${t.scale.map((label, i) => `<label><input class="choice-input" type="radio" name="${name}" value="${i + 1}"><span class="choice">${i + 1}<small>${esc(label)}</small></span></label>`).join('')}</div>
+<div class="sv-ends" aria-hidden="true"><span>${esc(t.ends[0])}</span><span>${esc(t.ends[1])}</span></div>`;
+
+const statement = (name, n, text, en, category = '') => `<fieldset class="sv-item" id="item-${name}">
+<legend>${category ? `<span class="sv-cat">${esc(category)}</span>` : ''}${n}. ${esc(text)}${original(en)}</legend>${scale(name)}</fieldset>`;
+
+const choices = (name, list) => list.map(([value, label, hint]) => `<label><input class="choice-input" type="radio" name="${name}" value="${esc(value)}"><span class="choice">${esc(label)}${hint ? `<small>${esc(hint)}</small>` : ''}</span></label>`).join('');
+
+const langBar = () => `<div class="sv-langs" role="group" aria-label="${esc(t.language)}">${LANGS.map((l) => `<button type="button" class="sv-lang${l.code === lang ? ' is-on' : ''}" data-lang="${l.code}" lang="${l.code === 'ceb' ? 'ceb' : l.code}" aria-pressed="${l.code === lang}">${esc(l.label)}</button>`).join('')}</div>`;
 
 function form() {
-    return `<form id="survey" novalidate>
+    return `${langBar()}
+<form id="survey" novalidate>
 <section class="card">
-    <h1>Help us evaluate ByahengPabama</h1>
-    <p>We are BSIT students of STI College Valencia. ByahengPabama is our capstone project: a bus tracking and fare matrix system for Pabama Corporation's CDO Agora Terminal – Kibawe route.</p>
-    <p>This survey takes about 10 minutes. You first try a few tasks in the system, then rate some statements. There are no right or wrong answers.</p>
-    <p class="sv-note">Answering is voluntary. We do not ask for your name or contact details; we only record your role and your answers. Under the Data Privacy Act of 2012 (Republic Act No. 10173), your answers are used only for this study and are reported as group results.</p>
-    <label class="check"><input type="checkbox" name="consent" id="consent" required><span>I have read the above and agree to take part.</span></label>
+    <h1>${esc(t.title)}</h1>
+    <p>${esc(t.intro)}</p>
+    <p>${esc(t.time)}</p>
+    <p class="sv-note">${esc(t.privacy)}</p>
+    <label class="check"><input type="checkbox" name="consent" id="consent" required><span>${esc(t.consent)}</span></label>
 </section>
 
+<section class="card" id="part-age">
+    <p class="sv-step">${esc(t.step)} 1</p>
+    <h2>${esc(t.ageTitle)}</h2>
+    <fieldset class="sv-item" id="item-age"><legend class="visually-hidden">${esc(t.ageTitle)}</legend>
+    <div class="sv-ages">${choices('age', AGES.map((a) => [a, a]).concat([[MINOR, t.minor]]))}</div>
+    </fieldset>
+    <div id="minor" class="alert sv-hidden" role="status"><div class="alert-body">${esc(t.minorNote)}</div></div>
+</section>
+
+<div id="adult" class="sv-hidden sv-stack">
 <section class="card" id="part-role">
-    <p class="sv-step">Step 1</p>
-    <h2>Which describes you?</h2>
-    <fieldset class="sv-item" id="item-role"><legend class="visually-hidden">Your role</legend>
-    <div class="sv-roles">${ROLES.map((r) => `<label><input class="choice-input" type="radio" name="role" value="${esc(r.value)}"><span class="choice">${esc(r.label)}<small>${esc(r.hint)}</small></span></label>`).join('')}</div>
+    <p class="sv-step">${esc(t.step)} 2</p>
+    <h2>${esc(t.roleTitle)}</h2>
+    <fieldset class="sv-item" id="item-role"><legend class="visually-hidden">${esc(t.roleTitle)}</legend>
+    <div class="sv-roles">${choices('role', ROLES.map((r) => [r, ...t.roles[r]]))}</div>
     </fieldset>
 </section>
 
-<div id="rest" class="sv-hidden" style="display:grid;gap:var(--s-4)">
+<div id="rest" class="sv-hidden sv-stack">
 <section class="card" id="part-tasks">
-    <p class="sv-step">Step 2</p>
-    <h2>Try the system</h2>
+    <p class="sv-step">${esc(t.step)} 3</p>
+    <h2>${esc(t.tasksTitle)}</h2>
     <div id="tasks"></div>
 </section>
 
 <section class="card" id="part-iso">
     <p class="sv-step" data-step-iso></p>
-    <h2>Software quality</h2>
-    <p class="sv-note">Rate each statement from 1 (strongly disagree) to 5 (strongly agree).</p>
-    ${ISO.map(([cat, text], i) => statement(`iso${i + 1}`, i + 1, text, cat)).join('')}
+    <h2>${esc(t.isoTitle)}</h2>
+    <p class="sv-note">${esc(t.rateNote)}</p>
+    ${t.iso.map((text, i) => statement(`iso${i + 1}`, i + 1, text, EN.iso[i], CATEGORIES[i])).join('')}
 </section>
 
 <section class="card" id="part-sus">
     <p class="sv-step" data-step-sus></p>
-    <h2>Ease of use</h2>
-    <p class="sv-note">Rate each statement from 1 (strongly disagree) to 5 (strongly agree). Answer every statement; if you are unsure, choose 3.</p>
-    ${SUS.map((text, i) => statement(`sus${i + 1}`, i + 1, text)).join('')}
+    <h2>${esc(t.susTitle)}</h2>
+    <p class="sv-note">${esc(t.rateNote)} ${esc(t.susNote)}</p>
+    ${t.sus.map((text, i) => statement(`sus${i + 1}`, i + 1, text, EN.sus[i])).join('')}
 </section>
 
 <section class="card sv-open" id="part-open">
     <p class="sv-step" data-step-open></p>
-    <h2>Your comments</h2>
-    <p class="sv-note">Optional, in English, Filipino, or Bisaya.</p>
-    ${OPEN.map(([name, text]) => `<div class="field"><label class="field-label" for="f-${name}">${esc(text)}</label><textarea class="input" id="f-${name}" name="${name}" maxlength="1000"></textarea></div>`).join('')}
+    <h2>${esc(t.openTitle)}</h2>
+    <p class="sv-note">${esc(t.openNote)}</p>
+    ${t.openQ.map((text, i) => `<div class="field"><label class="field-label" for="f-q${i + 1}">${esc(text)}${original(EN.openQ[i])}</label><textarea class="input" id="f-q${i + 1}" name="q${i + 1}" maxlength="1000"></textarea></div>`).join('')}
 </section>
 
 <div class="sv-actions">
     <div id="errors"></div>
-    <button type="submit" class="btn btn-primary btn-lg btn-block"><span>Submit my answers</span></button>
+    <button type="submit" class="btn btn-primary btn-lg btn-block"><span>${esc(t.submit)}</span></button>
     <p class="sv-progress" id="progress"></p>
+</div>
 </div>
 </div>
 </form>`;
 }
 
 function tasksFor(role) {
-    const t = TASKS[role];
-    const account = t.account
-        ? `<p class="sv-note">Demo account: <strong>${esc(t.account)}</strong>, password <strong>demo1234</strong>. You can also tap an account on the login page to fill it in.</p>`
+    const account = ACCOUNTS[role]
+        ? `<p class="sv-note">${fill(esc(t.account), { account: `<strong>${esc(ACCOUNTS[role])}</strong>`, password: '<strong>demo1234</strong>' })}</p>`
         : '';
-    return `<p>Use the system shown by the proponents, or open the online demo in a new tab. Then:</p>
-<ol>${t.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
+    return `<p>${esc(t.tasksIntro)}</p>
+<ol>${t.tasks[role].map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
 ${account}
-<p><a class="btn btn-secondary" href="${esc(t.link)}" target="_blank" rel="noopener"><span>Open the demo in a new tab</span></a></p>
-<p class="sv-note">Come back to this tab when you are done.</p>`;
+<p><a class="btn btn-secondary" href="${esc(LINKS[role])}" target="_blank" rel="noopener"><span>${esc(t.open)}</span></a></p>
+<p class="sv-note">${esc(t.comeBack)}</p>`;
+}
+
+function showAge(age) {
+    const minor = age === MINOR;
+    document.getElementById('minor').classList.toggle('sv-hidden', !minor);
+    document.getElementById('adult').classList.toggle('sv-hidden', minor || !age);
 }
 
 function showRole(role) {
+    if (!PARTS[role]) return;
     const parts = PARTS[role];
     document.getElementById('rest').classList.remove('sv-hidden');
     document.getElementById('tasks').innerHTML = tasksFor(role);
     document.getElementById('part-iso').classList.toggle('sv-hidden', !parts.iso);
     document.getElementById('part-sus').classList.toggle('sv-hidden', !parts.sus);
-    let step = 3;
-    if (parts.iso) document.querySelector('[data-step-iso]').textContent = `Step ${step++}`;
-    if (parts.sus) document.querySelector('[data-step-sus]').textContent = `Step ${step++}`;
-    document.querySelector('[data-step-open]').textContent = `Step ${step}`;
+    let step = 4;
+    if (parts.iso) document.querySelector('[data-step-iso]').textContent = `${t.step} ${step++}`;
+    if (parts.sus) document.querySelector('[data-step-sus]').textContent = `${t.step} ${step++}`;
+    document.querySelector('[data-step-open]').textContent = `${t.step} ${step}`;
     updateProgress();
 }
 
 function thanks(saved) {
-    app.innerHTML = `<section class="card">
-<h1>Salamat! Thank you.</h1>
-<p>${saved ? 'Your answers were sent.' : 'Your answers are saved on this device and will be sent the next time this page is opened with an internet connection.'}</p>
-<p class="sv-note">If this device is shared, the next respondent can start a new survey.</p>
-<p><button type="button" class="btn btn-secondary" data-again><span>Start a new survey for another respondent</span></button></p>
+    app.innerHTML = `${langBar()}<section class="card">
+<h1>${esc(t.thanks)}</h1>
+<p>${esc(saved ? t.sent : t.queued)}</p>
+<p class="sv-note">${esc(t.shared)}</p>
+<p><button type="button" class="btn btn-secondary" data-again><span>${esc(t.again)}</span></button></p>
 </section>`;
 }
 
@@ -137,20 +168,23 @@ function collect(f) {
     const parts = PARTS[role] || {};
     const list = (prefix, n) => Array.from({ length: n }, (_, i) => Number(data.get(`${prefix}${i + 1}`)) || null);
     return {
+        lang,
+        age: data.get('age'),
         role,
         consent: f.consent.checked,
-        iso: parts.iso ? list('iso', ISO.length) : [],
-        sus: parts.sus ? list('sus', SUS.length) : [],
+        iso: parts.iso ? list('iso', EN.iso.length) : [],
+        sus: parts.sus ? list('sus', EN.sus.length) : [],
         q1: (data.get('q1') || '').trim(), q2: (data.get('q2') || '').trim(), q3: (data.get('q3') || '').trim(),
     };
 }
 
 function missing(a) {
     const out = [];
-    if (!a.consent) out.push(['consent', 'Agree to take part (at the top).']);
-    if (!a.role) out.push(['item-role', 'Choose which describes you.']);
-    a.iso.forEach((v, i) => { if (!v) out.push([`item-iso${i + 1}`, `Software quality, statement ${i + 1}`]); });
-    a.sus.forEach((v, i) => { if (!v) out.push([`item-sus${i + 1}`, `Ease of use, statement ${i + 1}`]); });
+    if (!a.consent) out.push(['consent', t.fixConsent]);
+    if (!a.age) out.push(['item-age', t.fixAge]);
+    if (!a.role) out.push(['item-role', t.fixRole]);
+    a.iso.forEach((v, i) => { if (!v) out.push([`item-iso${i + 1}`, fill(t.fixIso, { n: i + 1 })]); });
+    a.sus.forEach((v, i) => { if (!v) out.push([`item-sus${i + 1}`, fill(t.fixSus, { n: i + 1 })]); });
     return out;
 }
 
@@ -159,12 +193,32 @@ function updateProgress() {
     const a = collect(f);
     const total = a.iso.length + a.sus.length;
     const done = a.iso.concat(a.sus).filter(Boolean).length;
-    document.getElementById('progress').textContent = total ? `${done} of ${total} statements answered` : '';
+    document.getElementById('progress').textContent = total ? fill(t.progress, { done, total }) : '';
+}
+
+// Keeps the answers when the language changes.
+function snapshot() {
+    const f = document.getElementById('survey');
+    if (!f) return null;
+    return Array.from(f.elements).filter((el) => el.name).map((el) => [el.name, el.type, el.type === 'radio' || el.type === 'checkbox' ? el.checked : el.value, el.value]);
+}
+
+function restore(state) {
+    const f = document.getElementById('survey');
+    if (!state || !f) return;
+    for (const [name, type, v, value] of state) {
+        if (type === 'radio') { if (v) { const el = f.querySelector(`input[name="${name}"][value="${CSS.escape(value)}"]`); if (el) el.checked = true; } }
+        else if (type === 'checkbox') { if (f.elements[name]) f.elements[name].checked = v; }
+        else if (f.elements[name]) f.elements[name].value = v;
+    }
+    showAge(f.elements.age.value);
+    if (f.elements.role.value) showRole(f.elements.role.value);
 }
 
 function bind() {
     const f = document.getElementById('survey');
     f.addEventListener('change', (e) => {
+        if (e.target.name === 'age') showAge(e.target.value);
         if (e.target.name === 'role') showRole(e.target.value);
         e.target.closest('.sv-item')?.classList.remove('sv-missing');
         updateProgress();
@@ -172,19 +226,20 @@ function bind() {
     f.addEventListener('submit', async (e) => {
         e.preventDefault();
         const a = collect(f);
+        if (a.age === MINOR) return;
         const gaps = missing(a);
         document.querySelectorAll('.sv-missing').forEach((el) => el.classList.remove('sv-missing'));
         const box = document.getElementById('errors');
         if (gaps.length) {
             gaps.forEach(([id]) => document.getElementById(id)?.closest('.sv-item')?.classList.add('sv-missing'));
-            box.innerHTML = `<div class="alert alert-danger sv-errors" role="alert"><div class="alert-body"><p class="alert-title">Please answer ${gaps.length === 1 ? 'this' : `these ${gaps.length}`} first:</p><ul>${gaps.slice(0, 8).map(([id, t]) => `<li><a href="#${id}">${esc(t)}</a></li>`).join('')}${gaps.length > 8 ? `<li>and ${gaps.length - 8} more</li>` : ''}</ul></div></div>`;
+            box.innerHTML = `<div class="alert alert-danger sv-errors" role="alert"><div class="alert-body"><p class="alert-title">${esc(t.fixTitle)}</p><ul>${gaps.slice(0, 8).map(([id, text]) => `<li><a href="#${id}">${esc(text)}</a></li>`).join('')}${gaps.length > 8 ? `<li>${esc(fill(t.more, { n: gaps.length - 8 }))}</li>` : ''}</ul></div></div>`;
             document.getElementById(gaps[0][0])?.scrollIntoView({ block: 'center', behavior: 'smooth' });
             return;
         }
         box.innerHTML = '';
         const button = f.querySelector('[type=submit]');
         button.disabled = true;
-        button.querySelector('span').textContent = 'Sending…';
+        button.querySelector('span').textContent = t.sending;
 
         const response = { id: newId(), ...a };
         let saved = true;
@@ -200,15 +255,33 @@ function bind() {
     });
 }
 
-function start() {
+function setText() {
+    document.documentElement.lang = lang === 'ceb' ? 'ceb' : lang;
+    const foot = document.getElementById('foot');
+    if (foot) foot.textContent = t.footer;
+}
+
+function start(state = null) {
+    setText();
     app.innerHTML = form();
     bind();
+    restore(state);
     if (!ENDPOINT) {
-        app.insertAdjacentHTML('afterbegin', '<div class="alert alert-warn" role="status"><div class="alert-body"><p class="alert-title">Test mode</p><div>This survey is not connected to the response sheet yet, so answers stay in this browser only.</div></div></div>');
+        app.insertAdjacentHTML('afterbegin', `<div class="alert alert-warn" role="status"><div class="alert-body">${esc(t.testMode)}</div></div>`);
     }
 }
 
 app.addEventListener('click', (e) => {
+    const pick = e.target.closest('[data-lang]');
+    if (pick && pick.dataset.lang !== lang) {
+        const state = snapshot();
+        lang = pick.dataset.lang;
+        t = T[lang];
+        write(LANG, lang);
+        if (document.getElementById('survey')) start(state);
+        else { setText(); thanks(read(QUEUE, []).length === 0); }
+        return;
+    }
     if (e.target.closest('[data-again]')) {
         write(DONE, false);
         start();
@@ -217,5 +290,5 @@ app.addEventListener('click', (e) => {
 });
 
 await flushQueue();
-if (read(DONE, false)) thanks(read(QUEUE, []).length === 0);
+if (read(DONE, false)) { setText(); thanks(read(QUEUE, []).length === 0); }
 else start();

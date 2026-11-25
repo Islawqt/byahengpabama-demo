@@ -50,3 +50,16 @@ fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .sv-main ul { list-style: disc; }
 .sv-item legend:not(.visually-hidden) { float: left; width: 100%; }
 .sv-scale { clear: both; }
+
+/* Language, age, and stacks */
+.sv-stack { display: grid; gap: var(--s-4); }
+.sv-langs { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+.sv-lang { font: inherit; font-size: var(--fs-sm); font-weight: 600; padding: 8px 14px; min-height: 40px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--ink-2); cursor: pointer; }
+.sv-lang.is-on { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+.sv-lang:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.sv-ages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); margin-top: var(--s-3); }
+.sv-ages label { display: flex; position: relative; }
+.sv-ages .choice { font-size: var(--fs-lg); min-height: 56px; padding: var(--s-2); }
+@media (max-width: 420px) { .sv-ages { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.sv-orig { display: block; margin-top: 2px; font-weight: 400; font-size: var(--fs-xs); color: var(--ink-3); font-style: italic; }
+#minor { margin-top: var(--s-3); }
