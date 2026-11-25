@@ -6,6 +6,8 @@ drawn in the browser from the demo data, so the shells are all alike.
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+SITE = 'https://islawqt.github.io/byahengpabama-demo'
+SHARE_DESC = 'A student capstone demo (STI College Valencia) with sample data. Not an official Pabama Corporation website.'
 
 PAGES = [
     # file, page key, title, description
@@ -47,6 +49,18 @@ THEME = """<script>
 def shell(page, title, description):
     inspector = page == 'inspector'
     desc = f'\n<meta name="description" content="{description}">' if description else ''
+    # Share card for Messenger, Facebook and other apps (needs a full image URL).
+    og_desc = description or SHARE_DESC
+    share = f"""
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ByahengPabama">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{og_desc}">
+<meta property="og:image" content="{SITE}/images/og-demo.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The ByahengPabama home page: Tell them what time to pick you up.">
+<meta name="twitter:card" content="summary_large_image">"""
     styles = ('<link rel="stylesheet" href="assets/inspector.css">' if inspector
               else '<link rel="stylesheet" href="assets/app.css">') + '\n<link rel="stylesheet" href="assets/demo.css">'
     theme = '' if inspector else THEME + '\n'
@@ -55,7 +69,7 @@ def shell(page, title, description):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{title}</title>{desc}
+<title>{title}</title>{desc}{share}
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#F4F3EF">
 <link rel="icon" href="favicon.ico" sizes="48x48">
