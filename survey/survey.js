@@ -17,6 +17,10 @@ const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(k
 const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* private mode */ } };
 const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`);
 
+// Each role can get its own link: ?role=passenger, inspector, admin, or it.
+const ROLE_KEYS = { passenger: 'Passenger', inspector: 'Line Inspector', admin: 'Admin staff', it: 'IT practitioner' };
+const fixedRole = ROLE_KEYS[(new URLSearchParams(location.search).get('role') || '').toLowerCase()] || null;
+
 let lang = LANGS.some((l) => l.code === read(LANG, '')) ? read(LANG, 'en') : 'en';
 let t = T[lang];
 
@@ -25,7 +29,11 @@ let t = T[lang];
 async function send(response) {
     if (!ENDPOINT) throw new Error('No endpoint set');
     // text/plain keeps this a "simple" request, which Apps Script accepts from another site.
-    await fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(response) });
+    // Network failures throw here and the response is kept on the device.
+    const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(response) });
+    let reply = null;
+    try { reply = JSON.parse(await res.text()); } catch { throw new Error('No reply'); }
+    if (!reply.ok) { const e = new Error(reply.error || 'Rejected'); e.rejected = true; throw e; }
 }
 
 async function flushQueue() {
@@ -33,7 +41,7 @@ async function flushQueue() {
     if (!waiting.length || !ENDPOINT) return;
     const left = [];
     for (const r of waiting) {
-        try { await send(r); } catch { left.push(r); }
+        try { await send(r); } catch (e) { if (!e.rejected) left.push(r); }
     }
     write(QUEUE, left);
 }
@@ -74,18 +82,19 @@ function form() {
 </section>
 
 <div id="adult" class="sv-hidden sv-stack">
-<section class="card" id="part-role">
+<section class="card${fixedRole ? ' sv-hidden' : ''}" id="part-role">
     <p class="sv-step">${esc(t.step)} 2</p>
     <h2>${esc(t.roleTitle)}</h2>
     <fieldset class="sv-item" id="item-role"><legend class="visually-hidden">${esc(t.roleTitle)}</legend>
-    <div class="sv-roles">${choices('role', ROLES.map((r) => [r, ...t.roles[r]]))}</div>
+    <div class="sv-roles">${choices('role', (fixedRole ? [fixedRole] : ROLES).map((r) => [r, ...t.roles[r]]))}</div>
     </fieldset>
 </section>
 
 <div id="rest" class="sv-hidden sv-stack">
 <section class="card" id="part-tasks">
-    <p class="sv-step">${esc(t.step)} 3</p>
+    <p class="sv-step">${esc(t.step)} ${fixedRole ? 2 : 3}</p>
     <h2>${esc(t.tasksTitle)}</h2>
+    ${fixedRole ? `<p class="sv-role-tag">${esc(t.roles[fixedRole][0])}</p>` : ''}
     <div id="tasks"></div>
 </section>
 
@@ -135,6 +144,7 @@ function showAge(age) {
     const minor = age === MINOR;
     document.getElementById('minor').classList.toggle('sv-hidden', !minor);
     document.getElementById('adult').classList.toggle('sv-hidden', minor || !age);
+    if (fixedRole && age && !minor) showRole(fixedRole);
 }
 
 function showRole(role) {
@@ -144,7 +154,7 @@ function showRole(role) {
     document.getElementById('tasks').innerHTML = tasksFor(role);
     document.getElementById('part-iso').classList.toggle('sv-hidden', !parts.iso);
     document.getElementById('part-sus').classList.toggle('sv-hidden', !parts.sus);
-    let step = 4;
+    let step = fixedRole ? 3 : 4;
     if (parts.iso) document.querySelector('[data-step-iso]').textContent = `${t.step} ${step++}`;
     if (parts.sus) document.querySelector('[data-step-sus]').textContent = `${t.step} ${step++}`;
     document.querySelector('[data-step-open]').textContent = `${t.step} ${step}`;
@@ -164,7 +174,7 @@ function thanks(saved) {
 
 function collect(f) {
     const data = new FormData(f);
-    const role = data.get('role');
+    const role = fixedRole || data.get('role');
     const parts = PARTS[role] || {};
     const list = (prefix, n) => Array.from({ length: n }, (_, i) => Number(data.get(`${prefix}${i + 1}`)) || null);
     return {
@@ -245,7 +255,13 @@ function bind() {
         let saved = true;
         try {
             await send(response);
-        } catch {
+        } catch (err) {
+            if (err.rejected) {
+                box.innerHTML = `<div class="alert alert-danger" role="alert"><div class="alert-body"><p class="alert-title">${esc(t.rejected)}</p><div>${esc(err.message)}</div></div></div>`;
+                button.disabled = false;
+                button.querySelector('span').textContent = t.submit;
+                return;
+            }
             saved = false;
             write(QUEUE, read(QUEUE, []).concat([response]));
         }

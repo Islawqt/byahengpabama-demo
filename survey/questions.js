@@ -21,7 +21,7 @@ export const PARTS = {
 
 const SITE = 'https://demo.byahengpabama.site';
 export const LINKS = {
-    Passenger: `${SITE}/passenger`,
+    Passenger: SITE,
     'Line Inspector': `${SITE}/login`,
     'Admin staff': `${SITE}/login`,
     'IT practitioner': SITE,
@@ -81,6 +81,7 @@ export const T = {
         openNote: 'Optional. You may answer in English, Filipino, or Bisaya.',
         submit: 'Submit my answers',
         sending: 'Sending…',
+        rejected: 'Your answers were not saved. Please tell the proponents.',
         progress: '{done} of {total} statements answered',
         fixTitle: 'Please answer these first:',
         fixConsent: 'Agree to take part (at the top).',
@@ -174,6 +175,7 @@ export const T = {
         openNote: 'Hindi sapilitan. Maaari kang sumagot sa English, Filipino, o Bisaya.',
         submit: 'Ipasa ang aking mga sagot',
         sending: 'Ipinapasa…',
+        rejected: 'Hindi na-save ang iyong mga sagot. Pakisabi sa mga proponent.',
         progress: '{done} sa {total} pahayag ang nasagot',
         fixTitle: 'Pakisagot muna ang mga ito:',
         fixConsent: 'Pumayag na sumali (sa itaas).',
@@ -267,6 +269,7 @@ export const T = {
         openNote: 'Dili pinugos. Mahimo kang motubag sa English, Filipino, o Bisaya.',
         submit: 'Ipadala ang akong mga tubag',
         sending: 'Gipadala…',
+        rejected: 'Wala na-save ang imong mga tubag. Palihug sultihi ang mga proponent.',
         progress: '{done} sa {total} ka pahayag ang natubag',
         fixTitle: 'Palihug tubaga una kini:',
         fixConsent: 'Uyon nga moapil (sa ibabaw).',
