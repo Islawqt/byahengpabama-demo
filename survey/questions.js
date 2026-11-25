@@ -10,6 +10,8 @@ export const LANGS = [
 export const ROLES = ['Passenger', 'Line Inspector', 'Admin staff', 'IT practitioner'];
 export const AGES = ['18–24', '25–34', '35–44', '45–59', '60 and above'];
 export const MINOR = 'Below 18';
+// Asked of passengers only (staff and IT practitioners are already working).
+export const STATUSES = ['Student', 'Employed', 'Self-employed', 'Unemployed', 'Retired', 'Other'];
 
 // Which parts each role answers (Chapter 3).
 export const PARTS = {
@@ -56,6 +58,9 @@ export const T = {
         minor: 'Below 18',
         minorNote: 'Thank you for your interest. This survey is only for respondents aged 18 and above, so you do not need to answer it.',
         roleTitle: 'Which describes you?',
+        statusTitle: 'What is your current status?',
+        statuses: ['Student', 'Employed (regular worker)', 'Self-employed or own business', 'Unemployed', 'Retired', 'Other'],
+        fixStatus: 'Choose your current status.',
         roles: {
             Passenger: ['Passenger', 'You ride Pabama buses.'],
             'Line Inspector': ['Line Inspector', 'You report buses at a checkpoint.'],
@@ -150,6 +155,9 @@ export const T = {
         minor: 'Mababa sa 18',
         minorNote: 'Salamat sa iyong interes. Para lamang sa may edad 18 pataas ang survey na ito, kaya hindi mo na kailangang sumagot.',
         roleTitle: 'Alin ang naglalarawan sa iyo?',
+        statusTitle: 'Ano ang kasalukuyan mong katayuan?',
+        statuses: ['Estudyante', 'May trabaho (empleyado)', 'Sariling negosyo o self-employed', 'Walang trabaho', 'Retirado', 'Iba pa'],
+        fixStatus: 'Piliin ang iyong kasalukuyang katayuan.',
         roles: {
             Passenger: ['Pasahero', 'Sumasakay ka sa mga bus ng Pabama.'],
             'Line Inspector': ['Line Inspector', 'Nagre-report ka ng mga bus sa checkpoint.'],
@@ -244,6 +252,9 @@ export const T = {
         minor: 'Ubos sa 18',
         minorNote: 'Salamat sa imong interes. Alang lang sa nag-edad og 18 pataas kini nga survey, busa dili na nimo kinahanglan motubag.',
         roleTitle: 'Asa ang naghulagway nimo?',
+        statusTitle: 'Unsa ang imong kahimtang karon?',
+        statuses: ['Estudyante', 'Naay trabaho (empleyado)', 'Kaugalingong negosyo o self-employed', 'Walay trabaho', 'Retirado', 'Uban pa'],
+        fixStatus: 'Pilia ang imong kahimtang karon.',
         roles: {
             Passenger: ['Pasahero', 'Musakay ka sa mga bus sa Pabama.'],
             'Line Inspector': ['Line Inspector', 'Nag-report ka sa mga bus sa checkpoint.'],

@@ -2,8 +2,8 @@
 // app (see apps-script.gs), which adds it as a row in the Google Sheet. If
 // sending fails, the response waits in this browser and is sent again the
 // next time the page opens.
-import { ENDPOINT } from './config.js?v=3';
-import { LANGS, ROLES, AGES, MINOR, PARTS, LINKS, ACCOUNTS, CATEGORIES, T } from './questions.js?v=3';
+import { ENDPOINT } from './config.js?v=4';
+import { LANGS, ROLES, AGES, MINOR, STATUSES, PARTS, LINKS, ACCOUNTS, CATEGORIES, T } from './questions.js?v=4';
 
 const app = document.getElementById('app');
 const QUEUE = 'bp-survey-queue';
@@ -73,7 +73,7 @@ function form() {
 </section>
 
 <section class="card" id="part-age">
-    <p class="sv-step">${esc(t.step)} 1</p>
+    <p class="sv-step" data-step></p>
     <h2>${esc(t.ageTitle)}</h2>
     <fieldset class="sv-item" id="item-age"><legend class="visually-hidden">${esc(t.ageTitle)}</legend>
     <div class="sv-ages">${choices('age', AGES.map((a) => [a, a]).concat([[MINOR, t.minor]]))}</div>
@@ -83,7 +83,7 @@ function form() {
 
 <div id="adult" class="sv-hidden sv-stack">
 <section class="card${fixedRole ? ' sv-hidden' : ''}" id="part-role">
-    <p class="sv-step">${esc(t.step)} 2</p>
+    <p class="sv-step" data-step></p>
     <h2>${esc(t.roleTitle)}</h2>
     <fieldset class="sv-item" id="item-role"><legend class="visually-hidden">${esc(t.roleTitle)}</legend>
     <div class="sv-roles">${choices('role', (fixedRole ? [fixedRole] : ROLES).map((r) => [r, ...t.roles[r]]))}</div>
@@ -91,29 +91,37 @@ function form() {
 </section>
 
 <div id="rest" class="sv-hidden sv-stack">
+<section class="card sv-hidden" id="part-status">
+    <p class="sv-step" data-step></p>
+    <h2>${esc(t.statusTitle)}</h2>
+    <fieldset class="sv-item" id="item-status"><legend class="visually-hidden">${esc(t.statusTitle)}</legend>
+    <div class="sv-ages sv-status">${choices('status', STATUSES.map((v, i) => [v, t.statuses[i]]))}</div>
+    </fieldset>
+</section>
+
 <section class="card" id="part-tasks">
-    <p class="sv-step">${esc(t.step)} ${fixedRole ? 2 : 3}</p>
+    <p class="sv-step" data-step></p>
     <h2>${esc(t.tasksTitle)}</h2>
     ${fixedRole ? `<p class="sv-role-tag">${esc(t.roles[fixedRole][0])}</p>` : ''}
     <div id="tasks"></div>
 </section>
 
 <section class="card" id="part-iso">
-    <p class="sv-step" data-step-iso></p>
+    <p class="sv-step" data-step></p>
     <h2>${esc(t.isoTitle)}</h2>
     <p class="sv-note">${esc(t.rateNote)}</p>
     ${t.iso.map((text, i) => statement(`iso${i + 1}`, i + 1, text, EN.iso[i], CATEGORIES[i])).join('')}
 </section>
 
 <section class="card" id="part-sus">
-    <p class="sv-step" data-step-sus></p>
+    <p class="sv-step" data-step></p>
     <h2>${esc(t.susTitle)}</h2>
     <p class="sv-note">${esc(t.rateNote)} ${esc(t.susNote)}</p>
     ${t.sus.map((text, i) => statement(`sus${i + 1}`, i + 1, text, EN.sus[i])).join('')}
 </section>
 
 <section class="card sv-open" id="part-open">
-    <p class="sv-step" data-step-open></p>
+    <p class="sv-step" data-step></p>
     <h2>${esc(t.openTitle)}</h2>
     <p class="sv-note">${esc(t.openNote)}</p>
     ${t.openQ.map((text, i) => `<div class="field"><label class="field-label" for="f-q${i + 1}">${esc(text)}${original(EN.openQ[i])}</label><textarea class="input" id="f-q${i + 1}" name="q${i + 1}" maxlength="1000"></textarea></div>`).join('')}
@@ -140,11 +148,21 @@ ${account}
 <p class="sv-note">${esc(t.comeBack)}</p>`;
 }
 
+// Numbers the visible steps in order.
+function numberSteps() {
+    let n = 1;
+    document.querySelectorAll('[data-step]').forEach((el) => {
+        if (el.closest('.sv-hidden')) return;
+        el.textContent = `${t.step} ${n++}`;
+    });
+}
+
 function showAge(age) {
     const minor = age === MINOR;
     document.getElementById('minor').classList.toggle('sv-hidden', !minor);
     document.getElementById('adult').classList.toggle('sv-hidden', minor || !age);
     if (fixedRole && age && !minor) showRole(fixedRole);
+    numberSteps();
 }
 
 function showRole(role) {
@@ -154,10 +172,8 @@ function showRole(role) {
     document.getElementById('tasks').innerHTML = tasksFor(role);
     document.getElementById('part-iso').classList.toggle('sv-hidden', !parts.iso);
     document.getElementById('part-sus').classList.toggle('sv-hidden', !parts.sus);
-    let step = fixedRole ? 3 : 4;
-    if (parts.iso) document.querySelector('[data-step-iso]').textContent = `${t.step} ${step++}`;
-    if (parts.sus) document.querySelector('[data-step-sus]').textContent = `${t.step} ${step++}`;
-    document.querySelector('[data-step-open]').textContent = `${t.step} ${step}`;
+    document.getElementById('part-status').classList.toggle('sv-hidden', role !== 'Passenger');
+    numberSteps();
     updateProgress();
 }
 
@@ -181,6 +197,7 @@ function collect(f) {
         lang,
         age: data.get('age'),
         role,
+        status: role === 'Passenger' ? data.get('status') : '',
         consent: f.consent.checked,
         iso: parts.iso ? list('iso', EN.iso.length) : [],
         sus: parts.sus ? list('sus', EN.sus.length) : [],
@@ -193,6 +210,7 @@ function missing(a) {
     if (!a.consent) out.push(['consent', t.fixConsent]);
     if (!a.age) out.push(['item-age', t.fixAge]);
     if (!a.role) out.push(['item-role', t.fixRole]);
+    if (a.role === 'Passenger' && !a.status) out.push(['item-status', t.fixStatus]);
     a.iso.forEach((v, i) => { if (!v) out.push([`item-iso${i + 1}`, fill(t.fixIso, { n: i + 1 })]); });
     a.sus.forEach((v, i) => { if (!v) out.push([`item-sus${i + 1}`, fill(t.fixSus, { n: i + 1 })]); });
     return out;
@@ -282,6 +300,7 @@ function start(state = null) {
     app.innerHTML = form();
     bind();
     restore(state);
+    numberSteps();
     if (!ENDPOINT) {
         app.insertAdjacentHTML('afterbegin', `<div class="alert alert-warn" role="status"><div class="alert-body">${esc(t.testMode)}</div></div>`);
     }

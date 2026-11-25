@@ -15,13 +15,14 @@
  * Version: New version > Deploy, so the same URL keeps working.
  *
  * Columns: A Submitted at, B Response ID, C Role, D Consent, E–V ISO 1–18,
- * W–AF SUS 1–10, AG SUS score, AH–AJ open-ended answers, AK Age group, AL Language.
+ * W–AF SUS 1–10, AG SUS score, AH–AJ open-ended answers, AK Age group, AL Language, AM Status (passengers).
  */
 
 const SHEET_NAME = 'Responses';
 const ROLES = ['Passenger', 'Line Inspector', 'Admin staff', 'IT practitioner'];
 const AGES = ['18–24', '25–34', '35–44', '45–59', '60 and above'];
 const LANGS = { en: 'English', fil: 'Filipino', ceb: 'Bisaya' };
+const STATUSES = ['Student', 'Employed', 'Self-employed', 'Unemployed', 'Retired', 'Other'];
 const ISO_ITEMS = 18;
 const SUS_ITEMS = 10;
 const MAX_TEXT = 1000;
@@ -60,6 +61,7 @@ function toRow(d) {
   if (ROLES.indexOf(d.role) < 0) throw new Error('Unknown role.');
   if (d.consent !== true) throw new Error('Consent is required.');
   if (AGES.indexOf(d.age) < 0) throw new Error('Unknown age group (respondents must be 18 or older).');
+  if (d.role === 'Passenger' && STATUSES.indexOf(d.status) < 0) throw new Error('Choose your current status.');
 
   const iso = ratings(d.iso, ISO_ITEMS, ANSWERS_ISO[d.role]);
   const sus = ratings(d.sus, SUS_ITEMS, ANSWERS_SUS[d.role]);
@@ -68,7 +70,7 @@ function toRow(d) {
   return [new Date(), id, d.role, 'Yes']
     .concat(iso, sus, [susScore(sus)], [text(d.q1), text(d.q2), text(d.q3)])
     // Added Nov 2026 at the end, so the Summary formulas for columns A to AJ stay the same.
-    .concat([d.age, LANGS[d.lang] || 'English']);
+    .concat([d.age, LANGS[d.lang] || 'English', d.role === 'Passenger' ? d.status : '']);
 }
 
 /** Ratings from 1 to 5, all required when the role answers that part. */
