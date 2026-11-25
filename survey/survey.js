@@ -2,8 +2,8 @@
 // app (see apps-script.gs), which adds it as a row in the Google Sheet. If
 // sending fails, the response waits in this browser and is sent again the
 // next time the page opens.
-import { ENDPOINT } from './config.js?v=7';
-import { LANGS, ROLES, AGES, MINOR, STATUSES, RIDES, PARTS, LINKS, ACCOUNTS, CATEGORIES, T } from './questions.js?v=7';
+import { ENDPOINT } from './config.js?v=8';
+import { LANGS, ROLES, AGES, MINOR, STATUSES, RIDES, PARTS, LINKS, ACCOUNTS, CATEGORIES, T } from './questions.js?v=8';
 
 const app = document.getElementById('app');
 const QUEUE = 'bp-survey-queue';
@@ -81,6 +81,7 @@ function form() {
 <form id="survey" novalidate>
 <section class="card">
     <h1>${esc(t.title)}</h1>
+    <div class="alert alert-warn sv-notice" role="note"><div class="alert-body">${esc(t.notice)}</div></div>
     <p>${esc(t.intro)}</p>
     <p>${esc(t.time)}</p>
     <p class="sv-note">${esc(t.privacy)}</p>
@@ -139,6 +140,13 @@ function form() {
     ${t.sus.map((text, i) => statement(`sus${i + 1}`, i + 1, text, EN.sus[i])).join('')}
 </section>
 
+<section class="card sv-hidden" id="part-helper">
+    <p class="sv-step" data-step></p>
+    <h2>${esc(t.helperTitle)}</h2>
+    <p class="sv-note">${esc(t.rateNote)} ${esc(t.helperNote)}</p>
+    ${t.helper.map((text, i) => statement(`helper${i + 1}`, i + 1, text, EN.helper[i])).join('')}
+</section>
+
 <section class="card sv-open" id="part-open">
     <p class="sv-step" data-step></p>
     <h2>${esc(t.openTitle)}</h2>
@@ -192,6 +200,8 @@ function showRole(role) {
     document.getElementById('part-iso').classList.toggle('sv-hidden', !parts.iso);
     document.getElementById('part-sus').classList.toggle('sv-hidden', !parts.sus);
     document.getElementById('part-status').classList.toggle('sv-hidden', role !== 'Passenger');
+    // Optional questions about the chat helper, asked of passengers only.
+    document.getElementById('part-helper').classList.toggle('sv-hidden', role !== 'Passenger');
     numberSteps();
     updateProgress();
 }
@@ -221,6 +231,7 @@ function collect(f) {
         consent: f.consent.checked,
         iso: parts.iso ? list('iso', EN.iso.length) : [],
         sus: parts.sus ? list('sus', EN.sus.length) : [],
+        helper: role === 'Passenger' ? list('helper', EN.helper.length) : [],
         q1: (data.get('q1') || '').trim(), q2: (data.get('q2') || '').trim(), q3: (data.get('q3') || '').trim(),
     };
 }

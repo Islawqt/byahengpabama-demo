@@ -16,7 +16,8 @@
  *
  * Columns: A Submitted at, B Response ID, C Role, D Consent, E–V ISO 1–18,
  * W–AF SUS 1–10, AG SUS score, AH–AJ open-ended answers, AK Age group, AL Language, AM Status (passengers), AN Has ridden Pabama (passengers),
- * AO Answered by (Self or Interview), AP Device code (random, not personal data).
+ * AO Answered by (Self or Interview), AP Device code (random, not personal data),
+ * AQ–AR Kuya Kondi chat helper 1–2 (passengers, optional, 1–5).
  */
 
 const SHEET_NAME = 'Responses';
@@ -28,6 +29,7 @@ const RIDES = ['Often', 'A few times', 'Not yet'];
 const MODES = { self: 'Self', interview: 'Interview' };
 const ISO_ITEMS = 18;
 const SUS_ITEMS = 10;
+const HELPER_ITEMS = 2;
 const MAX_TEXT = 1000;
 
 // Which parts each role answers (same rules as the survey page and Chapter 3).
@@ -75,7 +77,9 @@ function toRow(d) {
     .concat(iso, sus, [susScore(sus)], [text(d.q1), text(d.q2), text(d.q3)])
     // Added Nov 2026 at the end, so the Summary formulas for columns A to AJ stay the same.
     .concat([d.age, LANGS[d.lang] || 'English', d.role === 'Passenger' ? d.status : '', d.role === 'Passenger' ? d.ride : '',
-      MODES[d.mode] || 'Self', /^[A-Za-z0-9-]{8,64}$/.test(String(d.device || '')) ? String(d.device) : '']);
+      MODES[d.mode] || 'Self', /^[A-Za-z0-9-]{8,64}$/.test(String(d.device || '')) ? String(d.device) : ''])
+    // Added Nov 26, 2026: two optional ratings of the chat helper (blank if skipped).
+    .concat(optionalRatings(d.role === 'Passenger' ? d.helper : [], HELPER_ITEMS));
 }
 
 /** Ratings from 1 to 5, all required when the role answers that part. */
@@ -87,6 +91,17 @@ function ratings(list, count, required) {
     if (!(n >= 1 && n <= 5 && Math.floor(n) === n)) throw new Error('Ratings must be from 1 to 5.');
     return n;
   });
+}
+
+/** Optional ratings: each is 1 to 5 or left blank. */
+function optionalRatings(list, count) {
+  const out = new Array(count).fill('');
+  if (!Array.isArray(list)) return out;
+  for (let i = 0; i < count; i++) {
+    const n = Number(list[i]);
+    if (n >= 1 && n <= 5 && Math.floor(n) === n) out[i] = n;
+  }
+  return out;
 }
 
 /** SUS score from 0 to 100 (Brooke, 1996). */
