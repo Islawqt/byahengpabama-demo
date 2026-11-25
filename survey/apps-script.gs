@@ -15,7 +15,8 @@
  * Version: New version > Deploy, so the same URL keeps working.
  *
  * Columns: A Submitted at, B Response ID, C Role, D Consent, E–V ISO 1–18,
- * W–AF SUS 1–10, AG SUS score, AH–AJ open-ended answers, AK Age group, AL Language, AM Status (passengers), AN Has ridden Pabama (passengers).
+ * W–AF SUS 1–10, AG SUS score, AH–AJ open-ended answers, AK Age group, AL Language, AM Status (passengers), AN Has ridden Pabama (passengers),
+ * AO Answered by (Self or Interview), AP Device code (random, not personal data).
  */
 
 const SHEET_NAME = 'Responses';
@@ -24,6 +25,7 @@ const AGES = ['18–24', '25–34', '35–44', '45–59', '60 and above'];
 const LANGS = { en: 'English', fil: 'Filipino', ceb: 'Bisaya' };
 const STATUSES = ['Student', 'Employed', 'Self-employed', 'Unemployed', 'Retired', 'Other'];
 const RIDES = ['Often', 'A few times', 'Not yet'];
+const MODES = { self: 'Self', interview: 'Interview' };
 const ISO_ITEMS = 18;
 const SUS_ITEMS = 10;
 const MAX_TEXT = 1000;
@@ -72,7 +74,8 @@ function toRow(d) {
   return [new Date(), id, d.role, 'Yes']
     .concat(iso, sus, [susScore(sus)], [text(d.q1), text(d.q2), text(d.q3)])
     // Added Nov 2026 at the end, so the Summary formulas for columns A to AJ stay the same.
-    .concat([d.age, LANGS[d.lang] || 'English', d.role === 'Passenger' ? d.status : '', d.role === 'Passenger' ? d.ride : '']);
+    .concat([d.age, LANGS[d.lang] || 'English', d.role === 'Passenger' ? d.status : '', d.role === 'Passenger' ? d.ride : '',
+      MODES[d.mode] || 'Self', /^[A-Za-z0-9-]{8,64}$/.test(String(d.device || '')) ? String(d.device) : '']);
 }
 
 /** Ratings from 1 to 5, all required when the role answers that part. */

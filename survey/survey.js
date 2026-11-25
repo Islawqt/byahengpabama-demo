@@ -2,8 +2,8 @@
 // app (see apps-script.gs), which adds it as a row in the Google Sheet. If
 // sending fails, the response waits in this browser and is sent again the
 // next time the page opens.
-import { ENDPOINT } from './config.js?v=5';
-import { LANGS, ROLES, AGES, MINOR, STATUSES, RIDES, PARTS, LINKS, ACCOUNTS, CATEGORIES, T } from './questions.js?v=5';
+import { ENDPOINT } from './config.js?v=6';
+import { LANGS, ROLES, AGES, MINOR, STATUSES, RIDES, PARTS, LINKS, ACCOUNTS, CATEGORIES, T } from './questions.js?v=6';
 
 const app = document.getElementById('app');
 const QUEUE = 'bp-survey-queue';
@@ -19,7 +19,22 @@ const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toS
 
 // Each role can get its own link: ?role=passenger, inspector, admin, or it.
 const ROLE_KEYS = { passenger: 'Passenger', inspector: 'Line Inspector', admin: 'Admin staff', it: 'IT practitioner' };
-const fixedRole = ROLE_KEYS[(new URLSearchParams(location.search).get('role') || '').toLowerCase()] || null;
+const params = new URLSearchParams(location.search);
+const fixedRole = ROLE_KEYS[(params.get('role') || '').toLowerCase()] || null;
+
+// ?mode=interview: a proponent reads the questions to the respondent (for example, an elderly
+// passenger) and enters the answers, so one device can record many respondents.
+const interview = (params.get('mode') || '').toLowerCase() === 'interview';
+// Passengers answering on their own phone get one answer per device.
+const oneAnswer = fixedRole === 'Passenger' && !interview;
+const DONE_KEY = `${DONE}-${fixedRole || 'any'}-${interview ? 'interview' : 'self'}`;
+
+// A random code for this browser (not personal data), saved with each answer so repeats can be spotted.
+function deviceCode() {
+    let code = read('bp-survey-device', '');
+    if (!/^[A-Za-z0-9-]{8,64}$/.test(code)) { code = newId(); write('bp-survey-device', code); }
+    return code;
+}
 
 let lang = LANGS.some((l) => l.code === read(LANG, '')) ? read(LANG, 'en') : 'en';
 let t = T[lang];
@@ -185,8 +200,8 @@ function thanks(saved) {
     app.innerHTML = `${langBar()}<section class="card">
 <h1>${esc(t.thanks)}</h1>
 <p>${esc(saved ? t.sent : t.queued)}</p>
-<p class="sv-note">${esc(t.shared)}</p>
-<p><button type="button" class="btn btn-secondary" data-again><span>${esc(t.again)}</span></button></p>
+${oneAnswer ? `<p class="sv-note">${esc(t.oneAnswer)}</p>` : `<p class="sv-note">${esc(t.shared)}</p>
+<p><button type="button" class="btn btn-secondary" data-again><span>${esc(t.again)}</span></button></p>`}
 </section>`;
 }
 
@@ -275,7 +290,7 @@ function bind() {
         button.disabled = true;
         button.querySelector('span').textContent = t.sending;
 
-        const response = { id: newId(), ...a };
+        const response = { id: newId(), mode: interview ? 'interview' : 'self', device: deviceCode(), ...a };
         let saved = true;
         try {
             await send(response);
@@ -289,7 +304,7 @@ function bind() {
             saved = false;
             write(QUEUE, read(QUEUE, []).concat([response]));
         }
-        write(DONE, true);
+        write(DONE_KEY, true);
         thanks(saved);
         window.scrollTo(0, 0);
     });
@@ -307,6 +322,9 @@ function start(state = null) {
     bind();
     restore(state);
     numberSteps();
+    if (interview) {
+        app.insertAdjacentHTML('afterbegin', `<div class="alert alert-warn" role="status"><div class="alert-body"><p class="alert-title">${esc(t.interviewTitle)}</p><div>${esc(t.interviewNote)}</div></div></div>`);
+    }
     if (!ENDPOINT) {
         app.insertAdjacentHTML('afterbegin', `<div class="alert alert-warn" role="status"><div class="alert-body">${esc(t.testMode)}</div></div>`);
     }
@@ -323,13 +341,13 @@ app.addEventListener('click', (e) => {
         else { setText(); thanks(read(QUEUE, []).length === 0); }
         return;
     }
-    if (e.target.closest('[data-again]')) {
-        write(DONE, false);
+    if (e.target.closest('[data-again]') && !oneAnswer) {
+        write(DONE_KEY, false);
         start();
         window.scrollTo(0, 0);
     }
 });
 
 await flushQueue();
-if (read(DONE, false)) { setText(); thanks(read(QUEUE, []).length === 0); }
+if (read(DONE_KEY, false)) { setText(); thanks(read(QUEUE, []).length === 0); }
 else start();
