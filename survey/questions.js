@@ -142,7 +142,7 @@ export const T = {
             'I found the various functions in this system were well integrated.',
             'I thought there was too much inconsistency in this system.',
             'I would imagine that most people would learn to use this system very quickly.',
-            'I found the system very cumbersome to use.',
+            'I found the system very awkward to use.',
             'I felt very confident using the system.',
             'I needed to learn a lot of things before I could get going with this system.',
         ],
