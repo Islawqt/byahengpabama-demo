@@ -17,7 +17,7 @@
  * Columns: A Submitted at, B Response ID, C Role, D Consent, E–V ISO 1–18,
  * W–AF SUS 1–10, AG SUS score, AH–AJ open-ended answers, AK Age group, AL Language, AM Status (passengers), AN Has ridden Pabama (passengers),
  * AO Answered by (Self or Interview), AP Device code (random, not personal data),
- * AQ–AR Kuya Kondi chat helper 1–2 (passengers, optional, 1–5).
+ * AQ–AR Ate Ally chat helper 1–2 (passengers, optional, 1–5).
  */
 
 const SHEET_NAME = 'Responses';
