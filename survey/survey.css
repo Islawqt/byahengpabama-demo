@@ -69,3 +69,11 @@ fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .sv-status .choice { font-size: var(--fs-md); }
 .sv-q2 { margin-top: var(--s-5) !important; }
 .sv-notice { margin: 4px 0 14px; }
+
+/* Day and night switch (same choice as the main site: bp-theme) */
+.sv-theme { margin-left: auto; display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--ink); cursor: pointer; }
+.sv-theme:hover { border-color: var(--brand); color: var(--brand); }
+.sv-theme:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.sv-theme .sv-moon { display: none; }
+[data-theme="dark"] .sv-theme .sv-sun { display: none; }
+[data-theme="dark"] .sv-theme .sv-moon { display: block; }

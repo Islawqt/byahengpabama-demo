@@ -325,6 +325,7 @@ function setText() {
     document.documentElement.lang = lang === 'ceb' ? 'ceb' : lang;
     const foot = document.getElementById('foot');
     if (foot) foot.textContent = t.footer;
+    paintTheme();
 }
 
 function start(state = null) {
@@ -359,6 +360,27 @@ app.addEventListener('click', (e) => {
     }
 });
 
+// Day and night switch: saved as bp-theme, like on ByahengPabama itself.
+const THEME_LABEL = { en: ['Switch to dark mode', 'Switch to light mode'], fil: ['Lumipat sa dark mode', 'Lumipat sa light mode'], ceb: ['Balhin sa dark mode', 'Balhin sa light mode'] };
+function paintTheme() {
+    const btn = document.getElementById('theme');
+    if (!btn) return;
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const label = (THEME_LABEL[lang] || THEME_LABEL.en)[dark ? 1 : 0];
+    btn.setAttribute('aria-label', label);
+    btn.title = label;
+}
+document.getElementById('theme')?.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    const r = document.documentElement;
+    r.setAttribute('data-theme', next);
+    r.style.colorScheme = next;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#121212' : '#F4F3EF');
+    try { localStorage.setItem('bp-theme', next); } catch { /* private mode */ }
+    paintTheme();
+});
+
 await flushQueue();
+paintTheme();
 if (read(DONE_KEY, false)) { setText(); thanks(read(QUEUE, []).length === 0); }
 else start();
